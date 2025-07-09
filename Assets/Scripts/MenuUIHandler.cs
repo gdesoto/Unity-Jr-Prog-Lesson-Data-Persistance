@@ -12,10 +12,13 @@ public class MenuUIHandler : MonoBehaviour
 {
     //private InputField playerNameInput;
     private TMP_InputField playerNameInput;
+    private TMP_Text bestScoreValue;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         playerNameInput = GameObject.Find("PlayerNameInput").GetComponent<TMP_InputField>();
+        bestScoreValue = GameObject.Find("Best Score Value").GetComponent<TMP_Text>();
+        bestScoreValue.text = $"{PlayerDataManager.Instance.bestPlayer} - {PlayerDataManager.Instance.bestScore} Points";
     }
 
     public void StartGame()

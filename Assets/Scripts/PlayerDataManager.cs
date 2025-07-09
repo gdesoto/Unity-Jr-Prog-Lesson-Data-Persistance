@@ -1,10 +1,10 @@
 using UnityEngine;
-
+using System.IO;
 public class PlayerDataManager : MonoBehaviour
 {
     public static PlayerDataManager Instance;
 
-    public string playerName = "None";
+    public string currentPlayer = "None";
     public string bestPlayer = "None";
     public int bestScore = 0;
 
@@ -21,32 +21,66 @@ public class PlayerDataManager : MonoBehaviour
 
         Instance = this;
         DontDestroyOnLoad(gameObject);
+        LoadScoreData();
     }
 
     private void Start()
     {
-        LoadScoreData();
     }
 
     public void SetPlayerName(string _playerName)
     {
-        playerName = _playerName;
+        currentPlayer = _playerName;
     }
 
     [System.Serializable]
     class SaveData
     {
-        public string playerName;
-        public int score;
+        public string bestPlayer;
+        public int bestScore;
     }
 
-    public void SaveScoreData()
+    public void SaveScoreData(int newScore)
     {
+        // Is it a new high Score?
+        if (newScore <= bestScore)
+        {
+            return;
+        }
+        bestPlayer = currentPlayer;
+        bestScore = newScore;
+        // Create SaveData class
+        SaveData data = new SaveData();
+        data.bestPlayer = bestPlayer;
+        data.bestScore = bestScore;
 
+        // Convert SaveData to string
+        string json = JsonUtility.ToJson(data);
+
+        // Save to folder for data that will survive between application reinstall or update.
+        File.WriteAllText(Application.persistentDataPath + "/brickout_player.json", json);
     }
 
     public void LoadScoreData()
     {
+
+        string path = Application.persistentDataPath + "/brickout_player.json";
+
+        // Check if file exists
+        if (!File.Exists(path))
+        {
+            return;
+        }
+
+        // Get file contents
+        string json = File.ReadAllText(path);
+
+        // Convert content to SaveData class
+        SaveData data = JsonUtility.FromJson<SaveData>(json);
+
+        // Update properties from SaveData values.
+        bestPlayer = data.bestPlayer;
+        bestScore = data.bestScore;
 
     }
 }
